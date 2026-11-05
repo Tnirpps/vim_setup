@@ -1,55 +1,51 @@
-local M = {
-}
-function M.config()
-  local treesitter = require "nvim-treesitter"
-  local configs = require "nvim-treesitter.configs"
-
-  configs.setup {
-    ensure_installed = { "lua", "bash", "python", "cpp", "c"}, -- put the language you want in this array
-    -- ensure_installed = "all", -- one of "all" or a list of languages
-    ignore_install = { "" },                                                       -- List of parsers to ignore installing
-    sync_install = false,                                                          -- install languages synchronously (only applied to `ensure_installed`)
-
-    highlight = {
-      enable = true,       -- false will disable the whole extension
-      disable = { "css" }, -- list of language that will be disabled
-    },
-    autopairs = {
-      enable = true,
-    },
-    indent = { enable = true, disable = { "python", "css" } },
-
-    context_commentstring = {
-      enable = true,
-      enable_autocmd = false,
-    },
-    rainbow = {
-    enable = false,
-    -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
-    extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
-    max_file_lines = nil, -- Do not enable for files with more than n lines, int
-    -- colors = {}, -- table of hex strings
-    -- termcolors = {} -- table of colour name strings
-        colors = {
-            "#cc241d",
-            "#a89984",
-            "#b16286",
-            "#d79921",
-            "#689d6a",
-            "#d65d0e",
-            "#458588",
-        },
-        termcolors = {
-            "Red",
-            "Green",
-            "Yellow",
-            "Blue",
-            "Magenta",
-            "Cyan",
-            "White",
-        },
-    },
-  }
+local ok, treesitter = pcall(require, "nvim-treesitter")
+if not ok then
+  return
 end
 
-return M
+local parsers = { "bash", "c", "cpp", "lua", "python" }
+
+treesitter.setup()
+treesitter.install(parsers)
+
+-- A VS Code-inspired palette without error-like red delimiters.
+local rainbow_highlights = {
+  { "RainbowDelimiterViolet", "#C586C0" },
+  { "RainbowDelimiterBlue", "#569CD6" },
+  { "RainbowDelimiterGold", "#DCDCAA" },
+  { "RainbowDelimiterCyan", "#4EC9B0" },
+  { "RainbowDelimiterPink", "#D16D9E" },
+  { "RainbowDelimiterLightBlue", "#9CDCFE" },
+}
+
+vim.g.rainbow_delimiters = {
+  highlight = vim.tbl_map(function(item)
+    return item[1]
+  end, rainbow_highlights),
+}
+
+local function set_rainbow_highlights()
+  for _, item in ipairs(rainbow_highlights) do
+    vim.api.nvim_set_hl(0, item[1], { fg = item[2] })
+  end
+end
+
+set_rainbow_highlights()
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("rainbow_delimiter_colors", { clear = true }),
+  callback = set_rainbow_highlights,
+})
+
+-- nvim-treesitter's current API delegates highlighting to Neovim itself.
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "bash", "c", "cpp", "lua", "python", "sh" },
+  callback = function(args)
+    pcall(vim.treesitter.start, args.buf)
+
+    -- Tree-sitter indentation is still experimental; keep Python's native
+    -- indentation, which behaves better for this configuration.
+    if vim.bo[args.buf].filetype ~= "python" then
+      vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+    end
+  end,
+})

@@ -26,17 +26,20 @@ toggleterm.setup({
 	},
 })
 
-function _G.set_terminal_keymaps()
-  local opts = {noremap = true}
-  vim.api.nvim_buf_set_keymap(0, 't', '<esc>', [[<C-\><C-n>]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', 'jk', [[<C-\><C-n>]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-h>', [[<C-\><C-n><C-W>h]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-j>', [[<C-\><C-n><C-W>j]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-k>', [[<C-\><C-n><C-W>k]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-l>', [[<C-\><C-n><C-W>l]], opts)
-end
-
-vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
+local terminal_group = vim.api.nvim_create_augroup("terminal_keymaps", { clear = true })
+vim.api.nvim_create_autocmd("TermOpen", {
+  group = terminal_group,
+  pattern = "term://*",
+  callback = function(args)
+    local opts = { buffer = args.buf, silent = true }
+    vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], opts)
+    vim.keymap.set("t", "jk", [[<C-\><C-n>]], opts)
+    vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], opts)
+    vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], opts)
+    vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], opts)
+    vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], opts)
+  end,
+})
 
 local Terminal = require("toggleterm.terminal").Terminal
 local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
@@ -68,4 +71,3 @@ local python = Terminal:new({ cmd = "python", hidden = true })
 function _PYTHON_TOGGLE()
 	python:toggle()
 end
-

@@ -46,10 +46,10 @@ return packer.startup(function(use)
   use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
   use "windwp/nvim-autopairs" -- Autopairs, integrates with both cmp and treesitter
   use "numToStr/Comment.nvim" -- for commenting
-  use "nvim-lualine/lualine.nvim" -- for ter
+  use "nvim-lualine/lualine.nvim" -- statusline
   use "akinsho/toggleterm.nvim"   -- for ter
-  use 'kyazdani42/nvim-web-devicons' -- for tree of proj
-  use 'kyazdani42/nvim-tree.lua' -- for tree of proj
+  use "nvim-tree/nvim-web-devicons" -- icons for the project tree
+  use "nvim-tree/nvim-tree.lua" -- project tree
 
 
   -- Colorschemes
@@ -70,17 +70,16 @@ return packer.startup(function(use)
 
 -- LSP
   use "neovim/nvim-lspconfig" -- enable LSP
-  use "williamboman/mason.nvim" -- simple to use language server installer
-  use "williamboman/mason-lspconfig.nvim" -- simple to use language server installer
-  use 'jose-elias-alvarez/null-ls.nvim' -- LSP diagnostics and code actions
+  use "mason-org/mason.nvim" -- language server installer
+  use "mason-org/mason-lspconfig.nvim" -- Mason / LSP bridge
+  use "nvimtools/none-ls.nvim" -- formatting and diagnostics sources
 
 -- nvim-treesitter
   use {
-		"nvim-treesitter/nvim-treesitter",
-		commit = "226c1475a46a2ef6d840af9caa0117a439465500",
-        run = ":TSUpdate",
+    "nvim-treesitter/nvim-treesitter",
+    run = ":TSUpdate",
   }
-  use "p00f/nvim-ts-rainbow" -- подсветка скобок
+  use "HiPhish/rainbow-delimiters.nvim" -- rainbow brackets
 
 
 
@@ -90,5 +89,3 @@ return packer.startup(function(use)
     require("packer").sync()
   end
 end)
-
-
